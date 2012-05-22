@@ -5,8 +5,8 @@
 void initialize_octave()
 {
   char *argv[2];
-  argv[0] = "octave-ruby";
-  argv[1] = "-q";
+  argv[0] = (char *)"octave-ruby";
+  argv[1] = (char *)"-q";
   octave_main(2,argv,1);
   bind_internal_variable("crash_dumps_octave_core", false);
 }
