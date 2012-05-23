@@ -17,7 +17,7 @@ extern void recover_from_exception(void)
   can_interrupt = true;
   octave_interrupt_immediately = 0;
   octave_interrupt_state = 0;
-  octave_allocation_error = 0;
+  octave_exception_state = octave_no_exception;
 }
 
 VALUE or_feval(VALUE function_name, VALUE arguments)
@@ -26,10 +26,10 @@ VALUE or_feval(VALUE function_name, VALUE arguments)
   int i, n;
   octave_value_list argList;
   
-  n = RARRAY(arguments)->len;
+  n = RARRAY_LEN(arguments);
   
   for (i = 0; i < n; i++) {
-    argList(i) = OR_Variable(RARRAY(arguments)->ptr[i]).to_octave();
+    argList(i) = OR_Variable(RARRAY_PTR(arguments)[i]).to_octave();
   }
   
   if (octave_set_current_context) {
@@ -41,10 +41,10 @@ VALUE or_feval(VALUE function_name, VALUE arguments)
   octave_initialized = true;
 
   try {
-    curr_sym_tab = top_level_sym_tab;
+    symbol_table::set_scope(symbol_table::top_scope());
     reset_error_handler();
     
-    octave_value_list val = feval(std::string(RSTRING(function_name)->ptr), argList, 1);
+    octave_value_list val = feval(std::string(RSTRING_PTR(function_name)), argList, 1);
     if(val.length() > 0 && val(0).is_defined()) {
       ruby_val = OR_Variable(val(0)).to_ruby();
     }
